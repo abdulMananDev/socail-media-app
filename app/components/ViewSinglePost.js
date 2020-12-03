@@ -104,7 +104,11 @@ const ViewSinglePost = props => {
         <a href="#">
           <img className="avatar-tiny" src={post.author.avatar} />
         </a>
-        Posted by <a href="#">{post.author.username}</a> on {dateFormatted}
+        Posted by{" "}
+        <Link to={`/profile/${post.author.username}`}>
+          {post.author.username}
+        </Link>{" "}
+        on {dateFormatted}
       </p>
 
       <div className="body-content">

@@ -34,7 +34,7 @@ const ProfilePosts = () => {
         requestTerminate.cancel();
       }
     );
-  }, []);
+  }, [username]);
 
   if (isLoading)
     return (
