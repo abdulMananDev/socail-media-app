@@ -2,11 +2,9 @@ import React, { useState, useEffect } from "react";
 import Axios from "axios";
 import LoadingDotsIcon from "./LoadingDotsIcon";
 
-import { useParams } from "react-router-dom";
+import { useParams, Link } from "react-router-dom";
 
-import Post from "./Post";
-
-const ProfilePosts = () => {
+function ProfileFollower(props) {
   const { username } = useParams();
 
   const [postData, setPostData] = useState([]);
@@ -16,17 +14,16 @@ const ProfilePosts = () => {
     const requestTerminate = Axios.CancelToken.source();
     async function postData() {
       try {
-        const response = await Axios.get(`/profile/${username}/posts`, {
-          cancelToken: requestTerminate.token
-        });
+        const response = await Axios.get(
+          `/profile/${username}/${props.action}`
+        );
         setPostData(response.data);
         setLoading(false);
-
-        console.log(response);
       } catch (e) {
         console.log(e);
       }
     }
+
     postData();
     return (
       // return returns fucntions or variables defined above it; we cannot define something into Return
@@ -35,7 +32,7 @@ const ProfilePosts = () => {
         requestTerminate.cancel();
       }
     );
-  }, [username]);
+  }, [props.action]);
 
   if (isLoading)
     return (
@@ -45,10 +42,20 @@ const ProfilePosts = () => {
     );
   return (
     <div className="list-group">
-      {postData.map(post => {
-        <Post post={post} />;
+      {postData.map((foll, index) => {
+        // taking in date for each element and formatting it
+        return (
+          <Link
+            key={index}
+            to={`/profile/${foll.username}`}
+            className="list-group-item list-group-item-action"
+          >
+            <img className="avatar-tiny" src={foll.avatar} /> {foll.username}
+          </Link>
+        );
       })}
     </div>
   );
-};
-export default ProfilePosts;
+}
+
+export default ProfileFollower;

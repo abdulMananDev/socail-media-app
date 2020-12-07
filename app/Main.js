@@ -121,16 +121,13 @@ function Main() {
             <Route path="/terms" exact>
               <Terms />
             </Route>
-            <Route path="/profile/:username" exact>
+            <Route path="/profile/:username">
               <Profile />
             </Route>
             {/* For any non-existant-path 
                 This works perfectly fine.
                 we pit this at the end of routes
             */}
-            <Route>
-              <NotFound />
-            </Route>
           </Switch>
           <Footer />
 

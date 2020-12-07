@@ -1,8 +1,9 @@
 import React, { useContext, useEffect, useState } from "react";
 import Page from "./Page";
 import ProfilePosts from "./ProfilePosts";
+import ProfileFollower from "./ProfileFollower";
 
-import { useParams } from "react-router-dom";
+import { useParams, NavLink, Switch, Route, Link } from "react-router-dom";
 import StateContext from "../StateContext";
 
 import { useImmer } from "use-immer";
@@ -142,17 +143,37 @@ const Profile = () => {
       </h2>
 
       <div className="profile-nav nav nav-tabs pt-2 mb-4">
-        <a href="#" className="active nav-item nav-link">
+        <NavLink
+          to={`/profile/${state.profileData.profileUsername}`}
+          className="nav-item nav-link"
+        >
           Post Count {state.profileData.counts.postCount}
-        </a>
-        <a href="#" className="nav-item nav-link">
+        </NavLink>
+        <NavLink
+          to={`/profile/${state.profileData.profileUsername}/followers`}
+          className="nav-item nav-link"
+        >
           Followers {state.profileData.counts.followerCount}
-        </a>
-        <a href="#" className="nav-item nav-link">
+        </NavLink>
+        <NavLink
+          to={`/profile/${state.profileData.profileUsername}/following`}
+          className="nav-item nav-link"
+        >
           Following {state.profileData.counts.followingCount}
-        </a>
+        </NavLink>
       </div>
-      <ProfilePosts />
+
+      <Switch>
+        <Route exact path="/profile/:username">
+          <ProfilePosts />
+        </Route>
+        <Route path="/profile/:username/followers">
+          <ProfileFollower action="followers" />
+        </Route>
+        <Route path="/profile/:username/following">
+          <ProfileFollower action="following" />
+        </Route>
+      </Switch>
     </Page>
   );
 };

@@ -76,16 +76,16 @@ const Search = () => {
       appDispatch({ type: "closeSearch" });
     }
   }
-  function changeToDate(date) {
-    const reqDate = new Date(date);
+  // function changeToDate(date) {
+  //   const reqDate = new Date(date);
 
-    let dateObj = {
-      day: reqDate.getDate(),
-      month: reqDate.getMonth() + 1,
-      year: reqDate.getFullYear()
-    };
-    return `${dateObj.day}/${dateObj.month}/${dateObj.year}`;
-  }
+  //   let dateObj = {
+  //     day: reqDate.getDate(),
+  //     month: reqDate.getMonth() + 1,
+  //     year: reqDate.getFullYear()
+  //   };
+  //   return `${dateObj.day}/${dateObj.month}/${dateObj.year}`;
+  // }
   return (
     <div className="search-overlay">
       <div className="search-overlay-top shadow-sm">
@@ -122,19 +122,10 @@ const Search = () => {
               </div>
               {state.results.map(post => {
                 return (
-                  <Link
-                    key={post._id}
-                    to={`/post/${post._id}`}
-                    className="list-group-item list-group-item-action"
+                  <Post
+                    post={post}
                     onClick={() => appDispatch({ type: "closeSearch" })}
-                  >
-                    <img className="avatar-tiny" src={post.author.avatar} />{" "}
-                    <strong>{post.title}</strong>{" "}
-                    <span className="text-muted small">
-                      {`by ${post.author.username} on`}{" "}
-                      {changeToDate(post.createdDate)}
-                    </span>
-                  </Link>
+                  />
                 );
               })}
             </div>
