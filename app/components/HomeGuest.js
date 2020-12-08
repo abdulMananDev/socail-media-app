@@ -1,30 +1,76 @@
 import React, { useState } from "react";
 import Page from "./Page";
 import Axios from "axios";
+import { useImmerReducer } from "use-immer";
+import { CSSTransition, CSSTransitions } from "react-transition-group";
 
 const HomeGuest = () => {
-  const [username, setUsername] = useState("");
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
+  const initialState = {
+    username: {
+      value: "",
+      hasError: false,
+      errorMessage: ""
+    },
+    email: {
+      value: "",
+      hasError: false,
+      errorMessage: ""
+    },
+    password: {
+      value: "",
+      hasError: false,
+      errorMessage: ""
+    }
+  };
+  const ourReducer = (draft, action) => {
+    switch (action.type) {
+      case "usernameInstant":
+        draft.username.value = action.value;
+        draft.username.hasError = false;
+        if (draft.username.value.length > 25) {
+          draft.username.hasError = true;
+          draft.username.errorMessage = "Username can be 25 characters Long!! ";
+        }
+        if (
+          draft.username.value &&
+          !/^[a-zA-Z0-9_]+$/.test(draft.username.value)
+        ) {
+          draft.username.hasError = true;
+          draft.username.errorMessage = "Invalid Character Input in Username";
+        }
+        return;
+      case "usernameDelay":
+        return;
+      case "emailInstant":
+        draft.email.value = action.value;
+        draft.email.hasError = false;
+        if (draft.email.value.length > 25) {
+          draft.email.hasError = true;
+          draft.email.errorMessage = "email can be 25 characters Long!! ";
+        }
+        return;
+      case "emailDelay":
+        return;
+      case "passwordInstant":
+        draft.password.value = action.value;
+        draft.password.hasError = false;
+        if (draft.password.value.length > 25) {
+          draft.password.hasError = true;
+          draft.password.errorMessage = "password can be 25 characters Long!! ";
+        }
+
+        return;
+      case "passwordDelay":
+        return;
+    }
+  };
+
+  const [state, dispatch] = useImmerReducer(ourReducer, initialState);
 
   const handleSubmit = async e => {
     e.preventDefault();
 
-    const user = {
-      username,
-      email,
-      password
-    };
     // TRY Catch for axios
-    try {
-      await Axios.post("/register", user);
-      setUsername("");
-      setEmail("");
-      setPassword("");
-    } catch (e) {
-      e.response.data;
-      // data
-    }
   };
   return (
     <>
@@ -52,9 +98,20 @@ const HomeGuest = () => {
                   type="text"
                   placeholder="Pick a username"
                   autoComplete="off"
-                  onChange={e => setUsername(e.target.value)}
-                  value={username}
+                  onChange={e =>
+                    dispatch({ type: "usernameInstant", value: e.target.value })
+                  }
                 />
+                <CSSTransition
+                  in={state.username.hasError}
+                  timeout={330}
+                  classNames="liveValidateMessage"
+                  unmountOnExit
+                >
+                  <div className="alert alert-danger small liveValidateMessage">
+                    {state.username.errorMessage}
+                  </div>
+                </CSSTransition>
               </div>
               <div className="form-group">
                 <label htmlFor="email-register" className="text-muted mb-1">
@@ -67,9 +124,23 @@ const HomeGuest = () => {
                   type="text"
                   placeholder="you@example.com"
                   autoComplete="off"
-                  onChange={e => setEmail(e.target.value)}
-                  value={email}
+                  onChange={e =>
+                    dispatch({
+                      type: "emailInstant",
+                      value: e.target.value
+                    })
+                  }
                 />
+                <CSSTransition
+                  in={state.email.hasError}
+                  timeout={330}
+                  classNames="liveValidateMessage"
+                  unmountOnExit
+                >
+                  <div className="alert alert-danger small liveValidateMessage">
+                    {state.email.errorMessage}
+                  </div>
+                </CSSTransition>
               </div>
               <div className="form-group">
                 <label htmlFor="password-register" className="text-muted mb-1">
@@ -81,9 +152,23 @@ const HomeGuest = () => {
                   className="form-control"
                   type="password"
                   placeholder="Create a password"
-                  onChange={e => setPassword(e.target.value)}
-                  value={password}
+                  onChange={e =>
+                    dispatch({
+                      type: "passwordInstant",
+                      value: e.target.value
+                    })
+                  }
                 />
+                <CSSTransition
+                  in={state.password.hasError}
+                  timeout={330}
+                  classNames="liveValidateMessage"
+                  unmountOnExit
+                >
+                  <div className="alert alert-danger small liveValidateMessage">
+                    {state.password.errorMessage}
+                  </div>
+                </CSSTransition>
               </div>
               <button
                 type="submit"
