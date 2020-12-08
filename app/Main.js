@@ -41,7 +41,8 @@ function Main() {
       avatar: localStorage.getItem("avatar")
     },
     isSearchOpen: false,
-    isChatOpen: false
+    isChatOpen: false,
+    unreadChatMessages: 0
   };
   // = function
   function ourReducer(draft, action) {
@@ -68,6 +69,12 @@ function Main() {
         break;
       case "crossCloseChat":
         draft.isChatOpen = false;
+        break;
+      case "incrementUnreadMessages":
+        draft.unreadChatMessages++;
+        break;
+      case "clearReadMessages":
+        draft.unreadChatMessages = 0;
         break;
     }
   }

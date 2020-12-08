@@ -2,6 +2,7 @@ import React, { useContext, useRef, useEffect } from "react";
 import DispatchContext from "../DispatchContext";
 import StateContext from "../StateContext";
 import { useImmer } from "use-immer";
+import { Link } from "react-router-dom";
 import io from "socket.io-client";
 const socket = io("http://localhost:8080");
 console.log(socket.emit());
@@ -10,11 +11,14 @@ const Chat = () => {
   const appDispatch = useContext(DispatchContext);
   const appState = useContext(StateContext);
 
+  const beToLatest = useRef(null);
+
   const [state, setState] = useImmer({
     fieldValue: "",
     chatMessages: []
   });
   const chatField = useRef(null);
+
   console.log(state.chatMessages);
   const handleChange = e => {
     const chat = e.target.value;
@@ -44,6 +48,7 @@ const Chat = () => {
   useEffect(() => {
     if (appState.isChatOpen) {
       chatField.current.focus();
+      appDispatch({ type: "clearReadMessages" });
     }
   }, [appState.isChatOpen]);
 
@@ -57,6 +62,17 @@ const Chat = () => {
       });
     });
   }, []);
+
+  // Use effect for scrolling to the latest message impreatively using useRef hook
+  useEffect(() => {
+    beToLatest.current.scrollTop = beToLatest.current.scrollHeight;
+    /*The scrollTop property sets or returns the number of pixels- 
+     an element's content is scrolled vertically.*/
+    if (state.chatMessages.length && !appState.isChatOpen) {
+      appDispatch({ type: "incrementUnreadMessages" });
+    }
+  }, [state.chatMessages]);
+
   return (
     <div
       id="chat-wrapper"
@@ -73,7 +89,7 @@ const Chat = () => {
           <i className="fas fa-times-circle"></i>
         </span>
       </div>
-      <div id="chat" className="chat-log">
+      <div id="chat" className="chat-log" ref={beToLatest}>
         {state.chatMessages.map((message, index) => {
           if (message.username === appState.user.username) {
             return (
@@ -86,19 +102,19 @@ const Chat = () => {
             );
           } else {
             return (
-              <div className="chat-other">
-                <a href="#">
+              <div key={index} className="chat-other">
+                <Link to={`/profile/${message.username}`}>
                   <img
                     className="avatar-tiny"
                     src={message.avatar}
                     alt="test"
                   />
-                </a>
+                </Link>
                 <div className="chat-message">
                   <div className="chat-message-inner">
-                    <a href="#">
+                    <Link to={`/profile/${message.username}`}>
                       <strong>{message.username}: </strong>
-                    </a>
+                    </Link>
                     {message.message}
                   </div>
                 </div>

@@ -28,7 +28,15 @@ const HeaderLoggedIn = props => {
         className="mr-2 header-chat-icon text-white"
       >
         <i className="fas fa-comment"></i>
-        <span className="chat-count-badge text-white"> </span>
+        {appState.unreadChatMessages ? (
+          <span className="chat-count-badge text-danger">
+            {appState.unreadChatMessages < 10
+              ? appState.unreadChatMessages
+              : "9+"}
+          </span>
+        ) : (
+          " "
+        )}
       </span>
       <Link to={`/profile/${appState.user.username}`} className="mr-2">
         <img className="small-header-avatar" src={appState.user.avatar} />
