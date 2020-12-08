@@ -49,10 +49,11 @@ const Chat = () => {
 
   useEffect(() => {
     console.log("here");
-    socket.on("chatFromServer", message => {
+    socket.on("chatFromServer", msg => {
+      console.log("here");
       setState(draft => {
         console.log(draft);
-        draft.chatMessages.push(message);
+        draft.chatMessages.push(msg);
       });
     });
   }, []);
@@ -87,14 +88,18 @@ const Chat = () => {
             return (
               <div className="chat-other">
                 <a href="#">
-                  <img className="avatar-tiny" src="" alt="test" />
+                  <img
+                    className="avatar-tiny"
+                    src={message.avatar}
+                    alt="test"
+                  />
                 </a>
                 <div className="chat-message">
                   <div className="chat-message-inner">
                     <a href="#">
-                      <strong>user2:</strong>
+                      <strong>{message.username}: </strong>
                     </a>
-                    Hello
+                    {message.message}
                   </div>
                 </div>
               </div>
