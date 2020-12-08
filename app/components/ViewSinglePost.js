@@ -93,6 +93,7 @@ const ViewSinglePost = props => {
             data-tip="Delete"
             data-for="delete"
             className="delete-post-button text-danger"
+            to={`/profile/${post.author.username}`}
           >
             <i className="fas fa-trash"></i>
           </Link>

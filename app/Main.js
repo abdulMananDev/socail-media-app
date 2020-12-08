@@ -17,6 +17,7 @@ import ViewSinglePost from "./components/ViewSinglePost";
 import FlashMessage from "./components/FlashMessage";
 import Profile from "./components/Profile";
 import EditPost from "./components/EditPost";
+import Chat from "./components/Chat";
 
 // Importing Context from ExampleContext component
 import StateContext from "./StateContext";
@@ -39,7 +40,8 @@ function Main() {
       username: localStorage.getItem("username"),
       avatar: localStorage.getItem("avatar")
     },
-    isSearchOpen: false
+    isSearchOpen: false,
+    isChatOpen: false
   };
   // = function
   function ourReducer(draft, action) {
@@ -59,6 +61,13 @@ function Main() {
         break;
       case "closeSearch":
         draft.isSearchOpen = false;
+        break;
+      case "toggleChat":
+        //for toggling
+        draft.isChatOpen = !draft.isChatOpen;
+        break;
+      case "crossCloseChat":
+        draft.isChatOpen = false;
         break;
     }
   }
@@ -128,6 +137,10 @@ function Main() {
                 This works perfectly fine.
                 we pit this at the end of routes
             */}
+
+            <Route>
+              <NotFound />
+            </Route>
           </Switch>
           <Footer />
 
@@ -139,6 +152,7 @@ function Main() {
           >
             <Search />
           </CSSTransition>
+          <Chat />
         </Router>
       </DispatchContext.Provider>
     </StateContext.Provider>

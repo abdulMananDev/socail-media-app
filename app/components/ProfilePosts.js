@@ -3,7 +3,7 @@ import Axios from "axios";
 import LoadingDotsIcon from "./LoadingDotsIcon";
 
 import { useParams } from "react-router-dom";
-
+import { Link } from "react-router-dom";
 import Post from "./Post";
 
 const ProfilePosts = () => {
@@ -46,7 +46,8 @@ const ProfilePosts = () => {
   return (
     <div className="list-group">
       {postData.map(post => {
-        <Post post={post} />;
+        // taking in date for each element and formatting it
+        return <Post post={post} key={post._id} noAuthor={true} />;
       })}
     </div>
   );
