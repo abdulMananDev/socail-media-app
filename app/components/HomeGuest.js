@@ -1,25 +1,31 @@
-import React, { useState } from "react";
+import React, { useEffect } from "react";
 import Page from "./Page";
 import Axios from "axios";
 import { useImmerReducer } from "use-immer";
-import { CSSTransition, CSSTransitions } from "react-transition-group";
+import { CSSTransition } from "react-transition-group";
 
 const HomeGuest = () => {
   const initialState = {
     username: {
       value: "",
       hasError: false,
-      errorMessage: ""
+      errorMessage: "",
+      isUnique: true,
+      checkCount: 0
     },
     email: {
       value: "",
       hasError: false,
-      errorMessage: ""
+      errorMessage: "",
+      isUnique: true,
+      checkCount: 0
     },
     password: {
       value: "",
       hasError: false,
-      errorMessage: ""
+      errorMessage: "",
+      isUnique: true,
+      checkCount: 0
     }
   };
   const ourReducer = (draft, action) => {
@@ -29,7 +35,8 @@ const HomeGuest = () => {
         draft.username.hasError = false;
         if (draft.username.value.length > 25) {
           draft.username.hasError = true;
-          draft.username.errorMessage = "Username can be 25 characters Long!! ";
+          draft.username.errorMessage =
+            "Username must only be 25 characters Long!! ";
         }
         if (
           draft.username.value &&
@@ -40,7 +47,23 @@ const HomeGuest = () => {
         }
         return;
       case "usernameDelay":
+        if (draft.username.value.length < 3) {
+          draft.username.hasError = true;
+          draft.username.errorMessage =
+            "Username must be atleast 3 characters Long!! ";
+        }
+        if (!draft.hasError) {
+          draft.username.checkCount++;
+        }
         return;
+      case "isUsernameUnique":
+        if (action.value) {
+          draft.username.hasError = true;
+          draft.username.isUnique = false;
+          draft.username.errorMessage = "Username is taken";
+        } else {
+          draft.username.isUnique = true;
+        }
       case "emailInstant":
         draft.email.value = action.value;
         draft.email.hasError = false;
@@ -72,6 +95,36 @@ const HomeGuest = () => {
 
     // TRY Catch for axios
   };
+  useEffect(() => {
+    if (state.username.value) {
+      const delay = setTimeout(() => {
+        dispatch({ type: "usernameDelay" });
+      }, 800);
+      return () => clearTimeout(delay);
+    }
+  }, [state.username.value]);
+  useEffect(() => {
+    if (state.username.checkCount) {
+      const request = Axios.CancelToken.source();
+
+      // we give it to request below
+      // cancelling the previous request if undergoing
+      async function fetchResults() {
+        try {
+          const response = await Axios.post(
+            "/doesUsernameExist",
+            { username: state.username.value },
+            { cancelToken: request.token }
+          );
+          dispatch({ type: "isUsernameUnique", value: response.data });
+        } catch (e) {
+          e.response;
+        }
+      }
+      fetchResults();
+      return () => request.cancel();
+    }
+  }, [state.username.checkCount]);
   return (
     <>
       <Page title="Home" wide={true}>
