@@ -4,15 +4,13 @@ import StateContext from "../StateContext";
 import { useImmer } from "use-immer";
 import { Link } from "react-router-dom";
 import io from "socket.io-client";
-const socket = io("http://localhost:8080");
-console.log(socket.emit());
-console.log(socket.on());
+
 const Chat = () => {
   const appDispatch = useContext(DispatchContext);
   const appState = useContext(StateContext);
 
   const beToLatest = useRef(null);
-
+  const socket = useRef(null);
   const [state, setState] = useImmer({
     fieldValue: "",
     chatMessages: []
@@ -30,7 +28,7 @@ const Chat = () => {
   const handleSubmit = e => {
     e.preventDefault();
     console.log(state.fieldValue);
-    socket.emit("chatFromBrowser", {
+    socket.current.emit("chatFromBrowser", {
       message: state.fieldValue,
       token: appState.user.token
     });
@@ -53,14 +51,15 @@ const Chat = () => {
   }, [appState.isChatOpen]);
 
   useEffect(() => {
-    console.log("here");
-    socket.on("chatFromServer", msg => {
+    socket.current = io("http://localhost:8080");
+    socket.current.on("chatFromServer", msg => {
       console.log("here");
       setState(draft => {
         console.log(draft);
         draft.chatMessages.push(msg);
       });
     });
+    return () => socket.current.disconnect();
   }, []);
 
   // Use effect for scrolling to the latest message impreatively using useRef hook
