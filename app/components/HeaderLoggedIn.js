@@ -8,6 +8,10 @@ const HeaderLoggedIn = props => {
   const appState = useContext(StateContext);
   const handleSignOut = () => {
     appDispatch({ type: "logout" });
+    appDispatch({
+      type: "flashMessages",
+      value: "You have successfully Logged You!!!"
+    });
   };
   const handleClick = e => {
     e.preventDefault();

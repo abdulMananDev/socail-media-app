@@ -18,6 +18,9 @@ const HeaderLoggedOut = props => {
         console.log(response.data);
 
         appDispatch({ type: "login", data: response.data });
+        appDispatch({ type: "flashMessages", value: "Welcome Back!!" });
+      } else {
+        appDispatch({ type: "flashMessages", value: "Login Failed!" });
       }
     } catch (e) {
       console.log(e.response.data);

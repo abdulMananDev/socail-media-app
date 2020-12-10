@@ -1,4 +1,4 @@
-import React, { useState, useReducer, useEffect } from "react";
+import React, { useState, useReducer, useEffect, Suspense } from "react";
 import ReactDOM from "react-dom";
 import { BrowserRouter as Router, Switch, Route } from "react-router-dom";
 import Axios from "axios";
@@ -11,7 +11,7 @@ import Footer from "./components/Footer";
 import Header from "./components/Header";
 import HomeGuest from "./components/HomeGuest";
 import Home from "./components/Home";
-import CreatePost from "./components/CreatePost";
+const CreatePost = React.lazy(() => import("./components/CreatePost"));
 import Terms from "./components/Terms";
 import ViewSinglePost from "./components/ViewSinglePost";
 import FlashMessage from "./components/FlashMessage";
@@ -24,6 +24,7 @@ import StateContext from "./StateContext";
 import DispatchContext from "./DispatchContext";
 import NotFound from "./components/NotFound";
 import Search from "./components/Search";
+import LoadingDotsIcon from "./components/LoadingDotsIcon";
 
 // setting base Url
 Axios.defaults.baseURL = "http://localhost:8080";
@@ -93,6 +94,34 @@ function Main() {
       localStorage.removeItem("token");
     }
   }, [state.loggedIn]);
+
+  // Token Age Check
+  useEffect(() => {
+    if (state.loggedIn) {
+      const request = Axios.CancelToken.source();
+
+      // we give it to request below
+      // cancelling the previous request if undergoing
+      async function fetchResults() {
+        try {
+          const response = await Axios.post(
+            "/checkToken",
+            { token: state.user.token },
+            { cancelToken: request.token }
+          );
+          console.log(response.data);
+          if (!response.data) {
+            dispatch({ type: "logout" });
+            dispatch({ type: "flashMessages", value: "Token-Expired" });
+          }
+        } catch (e) {
+          e.response;
+        }
+      }
+      fetchResults();
+      return () => request.cancel();
+    }
+  }, []);
   // </Step-1>
 
   // <step-2>
@@ -114,41 +143,43 @@ function Main() {
         <Router>
           <FlashMessage flashMessages={state.flashMessages} />
           <Header />
-          <Switch>
-            <Route path="/" exact>
-              {state.loggedIn ? <Home /> : <HomeGuest />}
-            </Route>
+          <Suspense fallback={<LoadingDotsIcon />}>
+            <Switch>
+              <Route path="/" exact>
+                {state.loggedIn ? <Home /> : <HomeGuest />}
+              </Route>
 
-            <Route path="/create-post" exact>
-              <CreatePost />
-            </Route>
-            <Route path="/post/:id" exact>
-              <ViewSinglePost />
-            </Route>
+              <Route path="/create-post" exact>
+                <CreatePost />
+              </Route>
+              <Route path="/post/:id" exact>
+                <ViewSinglePost />
+              </Route>
 
-            <Route path="/post/:id/edit" exact>
-              <EditPost />
-            </Route>
+              <Route path="/post/:id/edit" exact>
+                <EditPost />
+              </Route>
 
-            <Route path="/about-us" exact>
-              <About />
-            </Route>
+              <Route path="/about-us" exact>
+                <About />
+              </Route>
 
-            <Route path="/terms" exact>
-              <Terms />
-            </Route>
-            <Route path="/profile/:username">
-              <Profile />
-            </Route>
-            {/* For any non-existant-path 
+              <Route path="/terms" exact>
+                <Terms />
+              </Route>
+              <Route path="/profile/:username">
+                <Profile />
+              </Route>
+              {/* For any non-existant-path 
                 This works perfectly fine.
                 we pit this at the end of routes
             */}
 
-            <Route>
-              <NotFound />
-            </Route>
-          </Switch>
+              <Route>
+                <NotFound />
+              </Route>
+            </Switch>
+          </Suspense>
           <Footer />
 
           <CSSTransition
