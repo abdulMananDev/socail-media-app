@@ -12,18 +12,20 @@ import Header from "./components/Header";
 import HomeGuest from "./components/HomeGuest";
 import Home from "./components/Home";
 const CreatePost = React.lazy(() => import("./components/CreatePost"));
+const ViewSinglePost = React.lazy(() => import("./components/ViewSinglePost"));
 import Terms from "./components/Terms";
-import ViewSinglePost from "./components/ViewSinglePost";
+
 import FlashMessage from "./components/FlashMessage";
 import Profile from "./components/Profile";
 import EditPost from "./components/EditPost";
-import Chat from "./components/Chat";
+const Chat = React.lazy(() => import("./components/Chat"));
 
 // Importing Context from ExampleContext component
 import StateContext from "./StateContext";
 import DispatchContext from "./DispatchContext";
 import NotFound from "./components/NotFound";
-import Search from "./components/Search";
+const Search = React.lazy(() => import("./components/Search"));
+
 import LoadingDotsIcon from "./components/LoadingDotsIcon";
 
 // setting base Url
@@ -188,9 +190,14 @@ function Main() {
             classNames="search-overlay"
             unmountOnExit
           >
-            <Search />
+            {/* div outside of suspense because of Css transition group- Removed form the Search  */}
+            <div className="search-overlay">
+              <Suspense fallback="">
+                <Search />
+              </Suspense>
+            </div>
           </CSSTransition>
-          <Chat />
+          <Suspense fallback="">{state.loggedIn && <Chat />}</Suspense>
         </Router>
       </DispatchContext.Provider>
     </StateContext.Provider>
