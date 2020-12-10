@@ -1,10 +1,12 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useContext, useCallback } from "react";
 import Page from "./Page";
 import Axios from "axios";
 import { useImmerReducer } from "use-immer";
 import { CSSTransition } from "react-transition-group";
+import DispatchContext from "../DispatchContext";
 
 const HomeGuest = () => {
+  const appDispatch = useContext(DispatchContext);
   const initialState = {
     username: {
       value: "",
@@ -26,7 +28,8 @@ const HomeGuest = () => {
       errorMessage: "",
       isUnique: true,
       checkCount: 0
-    }
+    },
+    submitCount: 0
   };
   const ourReducer = (draft, action) => {
     switch (action.type) {
@@ -52,7 +55,7 @@ const HomeGuest = () => {
           draft.username.errorMessage =
             "Username must be atleast 3 characters Long!! ";
         }
-        if (!draft.hasError) {
+        if (!draft.username.hasError && !action.noRequest) {
           draft.username.checkCount++;
         }
         return;
@@ -67,24 +70,57 @@ const HomeGuest = () => {
       case "emailInstant":
         draft.email.value = action.value;
         draft.email.hasError = false;
-        if (draft.email.value.length > 25) {
-          draft.email.hasError = true;
-          draft.email.errorMessage = "email can be 25 characters Long!! ";
-        }
+        // if (!draft.email.value) {
+        //   draft.email.hasError = true;
+        //   draft.email.errorMessage = "Email Length Can't be Zero";
+        // }
+
         return;
       case "emailDelay":
+        if (!/^\S+@\S+$/.test(draft.email.value)) {
+          draft.email.hasError = true;
+          draft.email.errorMessage = "Email must be a valid One";
+        }
+        if (!draft.email.hasError && !action.noRequest) {
+          draft.email.checkCount++;
+        }
         return;
+      case "isUsernameUnique":
+        if (action.value) {
+          draft.username.hasError = true;
+          draft.username.isUnique = false;
+          draft.username.errorMessage = "email is taken";
+        } else {
+          draft.username.isUnique = true;
+        }
+        return;
+
       case "passwordInstant":
         draft.password.value = action.value;
         draft.password.hasError = false;
-        if (draft.password.value.length > 25) {
+        if (draft.password.value > 50) {
           draft.password.hasError = true;
-          draft.password.errorMessage = "password can be 25 characters Long!! ";
+          draft.password.errorMessage =
+            "Password must be atleast 50 characters Long!! ";
         }
-
         return;
       case "passwordDelay":
+        if (draft.password.value.length < 8) {
+          draft.password.hasError = true;
+          draft.password.errorMessage =
+            "Password must be atleast 8 characters Long!! ";
+        }
         return;
+      case "submitForm":
+        if (
+          !draft.username.hasError &&
+          draft.username.isUnique &&
+          !draft.email.hasError &&
+          draft.email.isUnique &&
+          !draft.password.hasError
+        ) {
+          draft.submitCount++;
+        }
     }
   };
 
@@ -92,9 +128,21 @@ const HomeGuest = () => {
 
   const handleSubmit = async e => {
     e.preventDefault();
+    dispatch({ type: "usernameInstant", value: state.username.value });
+    dispatch({
+      type: "usernameDelay",
+      value: state.username.value,
+      noRequest: true
+    });
 
-    // TRY Catch for axios
+    dispatch({ type: "emailInstant", value: state.email.value });
+    dispatch({ type: "emailDelay", value: state.email.value, noRequest: true });
+
+    dispatch({ type: "passwordInstant", value: state.password.value });
+    dispatch({ type: "passwordDelay", value: state.password.value });
+    dispatch({ type: "submitForm" });
   };
+  // for username
   useEffect(() => {
     if (state.username.value) {
       const delay = setTimeout(() => {
@@ -103,6 +151,7 @@ const HomeGuest = () => {
       return () => clearTimeout(delay);
     }
   }, [state.username.value]);
+
   useEffect(() => {
     if (state.username.checkCount) {
       const request = Axios.CancelToken.source();
@@ -125,6 +174,80 @@ const HomeGuest = () => {
       return () => request.cancel();
     }
   }, [state.username.checkCount]);
+  // for email
+  useEffect(() => {
+    if (state.email.value) {
+      const delay = setTimeout(() => {
+        dispatch({ type: "emailDelay" });
+      }, 1600);
+      return () => clearTimeout(delay);
+    }
+  }, [state.email.value]);
+
+  useEffect(() => {
+    if (state.email.checkCount) {
+      const request = Axios.CancelToken.source();
+
+      // we give it to request below
+      // cancelling the previous request if undergoing
+      async function fetchResults() {
+        try {
+          const response = await Axios.post(
+            "/doesEmailExist",
+            { email: state.email.value },
+            { cancelToken: request.token }
+          );
+          dispatch({ type: "isEmailUnique", value: response.data });
+        } catch (e) {
+          e.response;
+        }
+      }
+      fetchResults();
+      return () => request.cancel();
+    }
+  }, [state.email.checkCount]);
+  // for password
+  useEffect(() => {
+    if (state.password.value) {
+      const delay = setTimeout(() => {
+        dispatch({ type: "passwordDelay" });
+      }, 800);
+      return () => clearTimeout(delay);
+    }
+  }, [state.password.value]);
+
+  // for submit axios Request
+  useEffect(() => {
+    if (state.submitCount) {
+      const request = Axios.CancelToken.source();
+
+      // we give it to request below
+      // cancelling the previous request if undergoing
+      async function fetchResults() {
+        try {
+          const response = await Axios.post(
+            "/register",
+            {
+              username: state.username.value,
+              email: state.email.value,
+              password: state.password.value
+            },
+            { cancelToken: request.token }
+          );
+          appDispatch({ type: "login", data: response.data });
+          appDispatch({
+            type: "flashMessages",
+            value: "Welcome to Your Writing World!!"
+          });
+        } catch (e) {
+          e.response;
+        }
+      }
+      fetchResults();
+      return () => request.cancel();
+    }
+  }, [state.submitCount]);
+
   return (
     <>
       <Page title="Home" wide={true}>
