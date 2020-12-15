@@ -29,7 +29,7 @@ const Search = React.lazy(() => import("./components/Search"));
 import LoadingDotsIcon from "./components/LoadingDotsIcon";
 
 // setting base Url
-Axios.defaults.baseURL = "http://localhost:8080";
+Axios.defaults.baseURL = process.env.BACKENDURL || "";
 // Main App/
 function Main() {
   /*Using Reducer for mediating state.*/
