@@ -29,7 +29,8 @@ const Search = React.lazy(() => import("./components/Search"));
 import LoadingDotsIcon from "./components/LoadingDotsIcon";
 
 // setting base Url
-Axios.defaults.baseURL = process.env.BACKENDURL || "";
+Axios.defaults.baseURL =
+  process.env.BACKENDURL || "https://metatronsocialmediabackend.herokuapp.com";
 // Main App/
 function Main() {
   /*Using Reducer for mediating state.*/
