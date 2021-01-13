@@ -30,7 +30,7 @@ import LoadingDotsIcon from "./components/LoadingDotsIcon";
 
 // setting base Url
 Axios.defaults.baseURL =
-  process.env.BACKENDURL || "https://metatronsocialmediabackend.herokuapp.com";
+  process.env.BACKENDURL || "https://social-media-backend-1.herokuapp.com";
 // Main App/
 function Main() {
   /*Using Reducer for mediating state.*/

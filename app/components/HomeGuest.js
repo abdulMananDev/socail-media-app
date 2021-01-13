@@ -43,7 +43,7 @@ const HomeGuest = () => {
         }
         if (
           draft.username.value &&
-          !/^[a-zA-Z0-9_]+$/.test(draft.username.value)
+          !/^[a-zA-Z0-9]+$/.test(draft.username.value)
         ) {
           draft.username.hasError = true;
           draft.username.errorMessage = "Invalid Character Input in Username";
@@ -98,10 +98,9 @@ const HomeGuest = () => {
       case "passwordInstant":
         draft.password.value = action.value;
         draft.password.hasError = false;
-        if (draft.password.value > 50) {
+        if (draft.password.value.length > 50) {
           draft.password.hasError = true;
-          draft.password.errorMessage =
-            "Password must be atleast 50 characters Long!! ";
+          draft.password.errorMessage = "We care about Your Privacy!!";
         }
         return;
       case "passwordDelay":
@@ -120,6 +119,7 @@ const HomeGuest = () => {
           !draft.password.hasError
         ) {
           draft.submitCount++;
+          console.log("here");
         }
     }
   };
