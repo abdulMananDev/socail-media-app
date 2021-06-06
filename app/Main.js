@@ -29,8 +29,7 @@ const Search = React.lazy(() => import("./components/Search"));
 import LoadingDotsIcon from "./components/LoadingDotsIcon";
 
 // setting base Url
-Axios.defaults.baseURL =
-  process.env.BACKENDURL || "https://social-media-backend-1.herokuapp.com";
+Axios.defaults.baseURL = "https://social-media-backend-1.herokuapp.com";
 // Main App/
 function Main() {
   /*Using Reducer for mediating state.*/
