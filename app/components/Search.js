@@ -34,7 +34,7 @@ const Search = () => {
       setState(draft => {
         draft.requestCount++;
       });
-      // console.log(state.searchTerm);
+      console.log(state.searchTerm);
     }, 500);
     // cand=ceeling the previos timeout fom this thing./
     // After there is  a pause in typing ,
@@ -48,6 +48,7 @@ const Search = () => {
 
   useEffect(() => {
     if (state.requestCount) {
+      console.log(state.searchTerm);
       const request = Axios.CancelToken.source();
 
       // we give it to request below
@@ -59,12 +60,14 @@ const Search = () => {
             { searchTerm: state.searchTerm },
             { cancelToken: request.token }
           );
-          console.log(response.data);
+
+          console.log(response);
           setState(draft => {
             draft.results = response.data;
           });
         } catch (e) {
-          e.response;
+          console.log("there was a problem");
+          // e.response.data;
         }
       }
       fetchResults();
